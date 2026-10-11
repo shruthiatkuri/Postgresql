@@ -2,10 +2,11 @@
 
 CREATE TABLE students (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
+    full_name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
-    birth_date TEXT,
-    enorollment_date DATE NOT NULL DEFAULT now());
+    birth_date DATE,
+    enrollment_date DATE NOT NULL DEFAULT CURRENT_DATE
+);
 
 -- courses table
 
@@ -13,25 +14,27 @@ CREATE TABLE courses (
     id SERIAL PRIMARY KEY,
     course_name TEXT NOT NULL,
     instructor TEXT NOT NULL,
-    credits INTEGER NOT NULL CHECK ( credits > 0));    
+    credits INTEGER NOT NULL CHECK ( credits > 0)
+);    
 
 
 -- grades table
 
 CREATE TABLE grades (
-    grades_id SERIAL PRIMARY KEY,
-    student_id INTEGER REFERENCES students(id),
-    course_id INTEGER REFERENCES courses(id),
-    grade NUMERIC NOT NULL CHECK ( grade > 0 AND grade < 100),
-    UNIQUE(student_id, course_id));
+    grade_id SERIAL PRIMARY KEY,
+    student_id INTEGER NOT NULL REFERENCES students(id),
+    course_id INTEGER NOT NULL REFERENCES courses(id),
+    grade NUMERIC NOT NULL CHECK (grade BETWEEN 0 AND 100),
+    UNIQUE(student_id, course_id)
+);
 
 
 --insert into values students
 
-INSERT INTO students ( name, email, birth_date)
-VALUES ('Alice', 'Alice@gamil.com','2002-07-09'),
-       ('Sam', 'samemial@gmail.com','2001-08-20'),
-       ('Fyn', 'Fnynn@gmail.com',NULL);
+INSERT INTO students (full_name, email, birth_date)
+VALUES ('Alice Lim', 'Alice@gamil.com','2002-07-09'),
+       ('Sam Josh', 'samemial@gmail.com','2001-08-20'),
+       ('Fyn Kyle', 'Fnynn@gmail.com',NULL);
 
 
 SELECT * FROM students;
@@ -43,7 +46,6 @@ INSERT INTO courses (course_name,instructor, credits)
 VALUES ('Databases', 'James',4),
        ('Statistics', 'Avi', 4),
        ('Algorithms', 'Kay', 3);
-
 
 SELECT * FROM courses;
 
@@ -62,19 +64,19 @@ SELECT * FROM grades;
 
 UPDATE students
 SET email= 'sam@gmail.com'
-WHERE name= 'Sam';
+WHERE id= 2;
 
 
-SELECT name,email
+SELECT full_name,email
 FROM students;
 
 --updates 2 in students table
 
 UPDATE students
 SET birth_date= '2002-09-09'
-WHERE name= 'Fyn';
+WHERE id= 3;
 
-SELECT name,birth_date
+SELECT full_name,birth_date
 FROM students;
 
 --first delete foreign key from grades
@@ -82,18 +84,17 @@ FROM students;
 DELETE FROM grades
 WHERE student_id= 1;
 
---Then delete the value form students table
+-- Then delete the student from the students table
 
 DELETE FROM students
-WHERE name= 'Alice';
-
+WHERE id = 1;
 
 
 
 SELECT * FROM students;
 
 
-SELECT s.name, c.course_name, g.grade
+SELECT s.full_name, c.course_name, g.grade
 FROM grades g
 JOIN students s ON s.id= g.student_id
 JOIN courses c ON c.id= g.course_id;
